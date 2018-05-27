@@ -1,0 +1,75 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string",
+            "defaultValue": "kk-eas-hditest",
+            "metadata": {
+                "description": "The name of the existing HDInsight cluster"
+            }
+        },
+        "nifiNodeSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the NiFi node. Use a recommedned VM size for worker nodes."
+            },
+            "defaultValue": "Standard_A3",
+            "allowedValues": [
+                "Standard_A3",
+                "Standard_D3",
+                "Standard_D3_v2",
+                "Standard_D4_v2",
+                "Standard_D12_v2"
+            ]
+        },
+        "nifiNodePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "NiFi node prefix"
+            },
+            "defaultValue": "nifi"
+        }
+    },
+    "variables": {
+        "clusterApiVersion": "2015-03-01-preview",
+        "applicationName": "[parameters('nifiNodePrefix')]",
+        "applicationURL": "nifi"
+    },
+    "resources": [{
+        "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
+        "type": "Microsoft.HDInsight/clusters/applications",
+        "apiVersion": "[variables('clusterApiVersion')]",
+        "comments" : "The script below is a copy of the script in the IaaS-Applications github repository",
+        "properties": {
+            "marketPlaceIdentifier": "EmptyNode",
+            "computeProfile": {
+                "roles": [{
+                    "name": "edgenode",
+                    "targetInstanceCount": 3,
+                    "hardwareProfile": {
+                        "vmSize": "[parameters('nifiNodeSize')]"
+                    }
+                }]
+            },
+            "installScriptActions": [{
+                "name": "[concat('edgenode','-' ,uniquestring(variables('applicationName')))]",
+                "uri": "https://raw.githubusercontent.com/msftkenneth/HDInsight-Kafka-Nifi/master/install.sh",
+                "roles": ["edgenode"]
+            }],
+            "uninstallScriptActions": [],
+            "httpsEndpoints": [{
+              "subDomainSuffix": "nifi",
+              "destinationPort": 9999,
+              "accessModes": ["webpage"]
+            }],
+            "applicationType": "CustomApplication"
+        }
+    }],
+    "outputs": {
+        "application": {
+            "type": "object",
+            "value": "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), variables('applicationName')))]"
+        }
+    }
+}
