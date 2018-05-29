@@ -1,6 +1,6 @@
 #!/bin/bash
 INIT_FOLDER=`pwd`
-NIFI_VERSION=nifi-1.1.2
+NIFI_VERSION=nifi-1.6.0
 NGINX_CONF="https://raw.githubusercontent.com/msftkenneth/HDInsight-Kafka-Nifi/master/nginx.conf"
 NIFI_HOME="/opt/nifi"
 HADOOP_CORE_CONF="/etc/hadoop/conf/core-site.xml"
@@ -53,7 +53,7 @@ mountExternalStorage() {
 
 rewriteNginxConfig() {
     curl $NGINX_CONF | sed "s/ENDPOINT/$1/" | sudo tee /etc/nginx/nginx.conf > /dev/null
-    sudo service nginx reload || sudo service nginx start
+    sudo systemctl reload nginx || sudo systemctl start nginx
 }
 
 installJava() {
@@ -105,7 +105,7 @@ installNiFi() {
     sudo -n -u nifi bash <<-EOS
     if [ ! -d $NIFI_HOME/$NIFI_VERSION ]; then
         cd $NIFI_HOME
-        wget https://github.com/gglanzani/nifi/releases/download/rel%2F1.1.2-hadoop-2.8/$NIFI_VERSION-bin.zip
+        wget http://apache.communilink.net/nifi/1.6.0/$NIFI_VERSION-bin.zip
         unzip $NIFI_VERSION-bin.zip &> /dev/null
         rm $NIFI_VERSION-bin.zip
         echo -e "\nexport JAVA_HOME=\"/usr/lib/jvm/java-8-openjdk-amd64/\"" >> $NIFI_HOME/$NIFI_VERSION/bin/nifi-env.sh

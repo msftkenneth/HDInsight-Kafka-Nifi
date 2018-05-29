@@ -4,7 +4,7 @@
     "parameters": {
         "clusterName": {
             "type": "string",
-            "defaultValue": "kk-eas-hditest",
+            "defaultValue": "hdi-test-hk-di-kafka",
             "metadata": {
                 "description": "The name of the existing HDInsight cluster"
             }
@@ -46,7 +46,7 @@
             "computeProfile": {
                 "roles": [{
                     "name": "edgenode",
-                    "targetInstanceCount": 3,
+                    "targetInstanceCount": 2,
                     "hardwareProfile": {
                         "vmSize": "[parameters('nifiNodeSize')]"
                     }
@@ -59,7 +59,7 @@
             }],
             "uninstallScriptActions": [],
             "httpsEndpoints": [{
-              "subDomainSuffix": "nifi",
+              "subDomainSuffix": "nfi",
               "destinationPort": 9999,
               "accessModes": ["webpage"]
             }],
